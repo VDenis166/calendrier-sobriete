@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Calendrier Sobriété 2026 — objectifs</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --ink:#111827;
+      --muted:#6b7280;
+      --border:#e5e7eb;
+      --card:#ffffff;
+      --soft:#f9fafb;
+
+      --checkedBg:#111827;
+      --checkedInk:#ffffff;
+
+      --radius:16px;
+    }
+
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--ink);
+      background: linear-gradient(180deg, #fff, #fafafa);
+    }
+
+    .wrap{
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px 16px 36px;
+    }
+
+    .header{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:flex-end;
+      justify-content:space-between;
+      margin-bottom: 14px;
+    }
+
+    .title{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      min-width: 280px;
+    }
+    .title h1{
+      margin:0;
+      font-size: 20px;
+      letter-spacing:-0.02em;
+    }
+    .title p{
+      margin:0;
+      color:var(--muted);
+      font-size: 13px;
+      line-height:1.35;
+    }
+
+    .controls{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+    }
+
+    .chip, button{
+      border:1px solid var(--border);
+      background:var(--card);
+      padding:10px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      box-shadow: 0 1px 0 rgba(0,0,0,.02);
+    }
+
+    button{
+      cursor:pointer;
+    }
+    button:hover{
+      background:var(--soft);
+    }
+
+    .chip{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      color:var(--muted);
+    }
+    .chip strong{ color:var(--ink); font-weight:700; }
+
+    .goalPanel{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+      margin: 10px 0 16px;
+    }
+    @media (max-width: 720px){
+      .goalPanel{ grid-template-columns: 1fr; }
+    }
+
+    .panel{
+      border:1px solid var(--border);
+      background:var(--card);
+      border-radius: var(--radius);
+      padding: 14px 14px 12px;
+      box-shadow: 0 4px 18px rgba(0,0,0,.04);
+    }
+    .panelTop{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:flex-start;
+      margin-bottom: 10px;
+    }
+    .panelTitle{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    .panelTitle .kicker{
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .panelTitle .value{
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing:-0.01em;
+    }
+    .panelRight{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    label{
+      font-size: 12px;
+      color: var(--muted);
+    }
+    input[type="number"]{
+      width: 86px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border:1px solid var(--border);
+      font-size: 13px;
+      outline:none;
+    }
+    input[type="number"]:focus{
+      border-color:#cbd5e1;
+    }
+
+    .bar{
+      height: 10px;
+      border-radius: 999px;
+      background: #f1f5f9;
+      overflow:hidden;
+      border:1px solid var(--border);
+    }
+    .fill{
+      height:100%;
+      width:0%;
+      background: #111827;
+      border-radius: 999px;
+      transition: width .25s ease;
+    }
+    .panelFoot{
+      display:flex;
+      justify-content:space-between;
+      margin-top:8px;
+      font-size: 12px;
+      color: var(--muted);
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(12, minmax(240px, 1fr));
+      gap: 14px;
+    }
+
+    @media (max-width: 1400px){
+      .grid{ grid-template-columns: repeat(3, minmax(240px, 1fr)); }
+    }
+    @media (max-width: 900px){
+      .grid{ grid-template-columns: repeat(2, minmax(240px, 1fr)); }
+    }
+    @media (max-width: 560px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .month{
+      border:1px solid var(--border);
+      background:var(--card);
+      border-radius: var(--radius);
+      overflow:hidden;
+      box-shadow: 0 4px 18px rgba(0,0,0,.04);
+    }
+
+    .monthHead{
+      display:flex;
+      justify-content:space-between;
+      align-items:baseline;
+      padding: 12px 14px;
+      background: #fff;
+      border-bottom:1px solid var(--border);
+      gap:10px;
+    }
+    .monthName{
+      font-weight:800;
+      letter-spacing:-0.01em;
+    }
+    .monthMeta{
+      color:var(--muted);
+      font-size:12px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .monthMini{
+      padding: 2px 10px;
+      border:1px solid var(--border);
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .monthMini strong{ color: var(--ink); }
+
+    .dow{
+      display:grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap:6px;
+      padding: 10px 12px 6px;
+      color:var(--muted);
+      font-size: 11px;
+      user-select:none;
+    }
+    .dow div{ text-align:center; }
+
+    .days{
+      display:grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap:6px;
+      padding: 6px 12px 12px;
+    }
+
+    .day, .empty{
+      height: 34px;
+      border-radius: 10px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size: 13px;
+      border:1px solid var(--border);
+      background: #fff;
+      user-select:none;
+    }
+    .empty{
+      border:1px dashed transparent;
+      background: transparent;
+    }
+
+    .day{
+      cursor:pointer;
+      position:relative;
+      transition: transform .05s ease, background .15s ease, border-color .15s ease;
+    }
+    .day:hover{
+      background: var(--soft);
+      transform: translateY(-1px);
+    }
+
+    .day.checked{
+      background: var(--checkedBg);
+      border-color: var(--checkedBg);
+      color: var(--checkedInk);
+    }
+    .day.checked::after{
+      content:"✓";
+      position:absolute;
+      right: 7px;
+      top: 6px;
+      font-size: 12px;
+      opacity:.95;
+    }
+
+    .legend{
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="header">
+      <div class="title">
+        <h1>Calendrier 2026 — suivi sobriété</h1>
+        <p>Cliquez sur un jour pour le cocher ✅ (enregistré automatiquement sur ce navigateur).</p>
+      </div>
+
+      <div class="controls">
+        <div class="chip" title="Total de jours cochés sur 2026 (ce navigateur)">
+          Total cochés : <strong id="countYear">0</strong>
+        </div>
+        <button id="clearBtn" type="button">Réinitialiser</button>
+      </div>
+    </div>
+
+    <div class="goalPanel">
+      <!-- Hebdo -->
+      <div class="panel" id="weekPanel">
+        <div class="panelTop">
+          <div class="panelTitle">
+            <div class="kicker">Objectif hebdo (semaine en cours)</div>
+            <div class="value"><span id="weekCount">0</span> / <span id="weekGoalLabel">5</span> jours cochés</div>
+          </div>
+          <div class="panelRight">
+            <label for="weekGoal">Objectif</label>
+            <input id="weekGoal" type="number" min="0" max="7" value="5" />
+          </div>
+        </div>
+        <div class="bar"><div class="fill" id="weekFill"></div></div>
+        <div class="panelFoot">
+          <div id="weekRange">—</div>
+          <div id="weekRemaining">—</div>
+        </div>
+      </div>
+
+      <!-- Mensuel -->
+      <div class="panel" id="monthPanel">
+        <div class="panelTop">
+          <div class="panelTitle">
+            <div class="kicker">Objectif mensuel (mois en cours)</div>
+            <div class="value"><span id="monthCount">0</span> / <span id="monthGoalLabel">12</span> jours cochés</div>
+          </div>
+          <div class="panelRight">
+            <label for="monthGoal">Objectif</label>
+            <input id="monthGoal" type="number" min="0" max="31" value="12" />
+          </div>
+        </div>
+        <div class="bar"><div class="fill" id="monthFill"></div></div>
+        <div class="panelFoot">
+          <div id="monthNameNow">—</div>
+          <div id="monthRemaining">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="calendar" class="grid"></div>
+
+    <div class="legend">
+      ✅ Re-cliquer sur un jour = enlever la marque. <br/>
+      ℹ️ Les objectifs hebdo/mensuels sont modifiables et mémorisés sur le navigateur de la cliente.
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const YEAR = 2026;
+      const STORAGE_KEY = "sobriete_calendar_" + YEAR;
+      const GOALS_KEY = "sobriete_goals_" + YEAR;
+
+      const monthNames = [
+        "Janvier","Février","Mars","Avril","Mai","Juin",
+        "Juillet","Août","Septembre","Octobre","Novembre","Décembre"
+      ];
+
+      // Lundi -> Dimanche
+      const dow = ["L","M","M","J","V","S","D"];
+
+      // Etat: dates cochées
+      const checked = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"));
+
+      // Objectifs
+      const savedGoals = JSON.parse(localStorage.getItem(GOALS_KEY) || "{}");
+      let weekGoal = Number.isFinite(savedGoals.weekGoal) ? savedGoals.weekGoal : 5;
+      let monthGoal = Number.isFinite(savedGoals.monthGoal) ? savedGoals.monthGoal : 12;
+
+      // Elements
+      const calendarEl = document.getElementById("calendar");
+
+      const countYearEl = document.getElementById("countYear");
+      const clearBtn = document.getElementById("clearBtn");
+
+      const weekGoalInput = document.getElementById("weekGoal");
+      const monthGoalInput = document.getElementById("monthGoal");
+
+      const weekCountEl = document.getElementById("weekCount");
+      const weekGoalLabelEl = document.getElementById("weekGoalLabel");
+      const weekFillEl = document.getElementById("weekFill");
+      const weekRangeEl = document.getElementById("weekRange");
+      const weekRemainingEl = document.getElementById("weekRemaining");
+
+      const monthCountEl = document.getElementById("monthCount");
+      const monthGoalLabelEl = document.getElementById("monthGoalLabel");
+      const monthFillEl = document.getElementById("monthFill");
+      const monthNameNowEl = document.getElementById("monthNameNow");
+      const monthRemainingEl = document.getElementById("monthRemaining");
+
+      function pad2(n){ return String(n).padStart(2,"0"); }
+      function isoDate(y,m,d){ return `${y}-${pad2(m)}-${pad2(d)}`; } // m: 1-12
+
+      function saveChecked(){
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(checked)));
+      }
+      function saveGoals(){
+        localStorage.setItem(GOALS_KEY, JSON.stringify({ weekGoal, monthGoal }));
+      }
+
+      function weekdayMondayFirst(date){
+        // JS: 0=Dim ... 6=Sam ; on veut 0=Lun ... 6=Dim
+        return (date.getDay() + 6) % 7;
+      }
+
+      function startOfWeekMonday(date){
+        // retourne le lundi de la semaine (à 00:00 local)
+        const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        const offset = weekdayMondayFirst(d);
+        d.setDate(d.getDate() - offset);
+        return d;
+      }
+
+      function endOfWeekSunday(date){
+        const start = startOfWeekMonday(date);
+        const end = new Date(start);
+        end.setDate(end.getDate() + 6);
+        return end;
+      }
+
+      function fmtFR(date){
+        // dd/mm
+        return `${pad2(date.getDate())}/${pad2(date.getMonth()+1)}`;
+      }
+
+      function countInRangeInclusive(start, end){
+        // compte les dates cochées appartenant à [start, end]
+        let c = 0;
+        const s = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+        const e = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+
+        // itère jours
+        for(let d = new Date(s); d <= e; d.setDate(d.getDate() + 1)){
+          const id = isoDate(d.getFullYear(), d.getMonth()+1, d.getDate());
+          if(checked.has(id)) c++;
+        }
+        return c;
+      }
+
+      function countInMonth(year, monthIndex){
+        // monthIndex 0-11
+        const daysInMonth = new Date(year, monthIndex+1, 0).getDate();
+        let c = 0;
+        for(let day=1; day<=daysInMonth; day++){
+          const id = isoDate(year, monthIndex+1, day);
+          if(checked.has(id)) c++;
+        }
+        return c;
+      }
+
+      function clamp(n, min, max){
+        n = Number(n);
+        if(!Number.isFinite(n)) return min;
+        return Math.min(max, Math.max(min, n));
+      }
+
+      function pct(part, total){
+        if(total <= 0) return 0;
+        return Math.max(0, Math.min(100, Math.round((part / total) * 100)));
+      }
+
+      function updateGoalPanels(){
+        // On se base sur "aujourd'hui" (jour de la cliente)
+        const now = new Date();
+
+        // Hebdo
+        const ws = startOfWeekMonday(now);
+        const we = endOfWeekSunday(now);
+        const weekCount = countInRangeInclusive(ws, we);
+
+        weekCountEl.textContent = weekCount;
+        weekGoalLabelEl.textContent = weekGoal;
+        weekRangeEl.textContent = `Semaine : ${fmtFR(ws)} → ${fmtFR(we)}`;
+
+        const wRemaining = Math.max(0, weekGoal - weekCount);
+        weekRemainingEl.textContent = (weekGoal <= 0)
+          ? "Objectif : 0"
+          : (wRemaining === 0 ? "Objectif atteint ✨" : `Reste ${wRemaining} jour(s)`);
+
+        weekFillEl.style.width = pct(weekCount, weekGoal) + "%";
+
+        // Mensuel
+        const m = now.getMonth();
+        const monthCount = countInMonth(now.getFullYear(), m);
+
+        monthCountEl.textContent = monthCount;
+        monthGoalLabelEl.textContent = monthGoal;
+        monthNameNowEl.textContent = `Mois : ${monthNames[m]} ${now.getFullYear()}`;
+
+        const mRemaining = Math.max(0, monthGoal - monthCount);
+        monthRemainingEl.textContent = (monthGoal <= 0)
+          ? "Objectif : 0"
+          : (mRemaining === 0 ? "Objectif atteint ✨" : `Reste ${mRemaining} jour(s)`);
+
+        monthFillEl.style.width = pct(monthCount, monthGoal) + "%";
+
+        // Total année
+        countYearEl.textContent = checked.size;
+      }
+
+      function buildMonth(monthIndex){ // 0-11
+        const monthCard = document.createElement("section");
+        monthCard.className = "month";
+
+        const head = document.createElement("div");
+        head.className = "monthHead";
+
+        const title = document.createElement("div");
+        title.className = "monthName";
+        title.textContent = monthNames[monthIndex];
+
+        const meta = document.createElement("div");
+        meta.className = "monthMeta";
+
+        const monthCheckedCount = countInMonth(YEAR, monthIndex);
+        const metaPill = document.createElement("div");
+        metaPill.className = "monthMini";
+        metaPill.innerHTML = `Cochés : <strong id="mcount-${monthIndex}">${monthCheckedCount}</strong>`;
+
+        const yearTxt = document.createElement("span");
+        yearTxt.textContent = YEAR;
+
+        meta.appendChild(metaPill);
+        meta.appendChild(yearTxt);
+
+        head.appendChild(title);
+        head.appendChild(meta);
+
+        const dowRow = document.createElement("div");
+        dowRow.className = "dow";
+        dow.forEach(x => {
+          const d = document.createElement("div");
+          d.textContent = x;
+          dowRow.appendChild(d);
+        });
+
+        const daysGrid = document.createElement("div");
+        daysGrid.className = "days";
+
+        const first = new Date(YEAR, monthIndex, 1);
+        const startOffset = weekdayMondayFirst(first);
+
+        const daysInMonth = new Date(YEAR, monthIndex + 1, 0).getDate();
+
+        for(let i=0;i<startOffset;i++){
+          const empty = document.createElement("div");
+          empty.className = "empty";
+          daysGrid.appendChild(empty);
+        }
+
+        for(let day=1; day<=daysInMonth; day++){
+          const id = isoDate(YEAR, monthIndex+1, day);
+          const cell = document.createElement("div");
+          cell.className = "day";
+          cell.textContent = day;
+
+          if(checked.has(id)) cell.classList.add("checked");
+
+          cell.addEventListener("click", () => {
+            if(checked.has(id)){
+              checked.delete(id);
+              cell.classList.remove("checked");
+            } else {
+              checked.add(id);
+              cell.classList.add("checked");
+            }
+            saveChecked();
+
+            // Maj mini-compteurs + panels
+            const mcountEl = document.getElementById(`mcount-${monthIndex}`);
+            if(mcountEl){
+              mcountEl.textContent = countInMonth(YEAR, monthIndex);
+            }
+            updateGoalPanels();
+          });
+
+          daysGrid.appendChild(cell);
+        }
+
+        monthCard.appendChild(head);
+        monthCard.appendChild(dowRow);
+        monthCard.appendChild(daysGrid);
+        return monthCard;
+      }
+
+      function renderCalendar(){
+        calendarEl.innerHTML = "";
+        for(let m=0; m<12; m++){
+          calendarEl.appendChild(buildMonth(m));
+        }
+      }
+
+      // Init inputs
+      weekGoalInput.value = weekGoal;
+      monthGoalInput.value = monthGoal;
+
+      weekGoalLabelEl.textContent = weekGoal;
+      monthGoalLabelEl.textContent = monthGoal;
+
+      weekGoalInput.addEventListener("input", () => {
+        weekGoal = clamp(weekGoalInput.value, 0, 7);
+        weekGoalInput.value = weekGoal;
+        weekGoalLabelEl.textContent = weekGoal;
+        saveGoals();
+        updateGoalPanels();
+      });
+
+      monthGoalInput.addEventListener("input", () => {
+        monthGoal = clamp(monthGoalInput.value, 0, 31);
+        monthGoalInput.value = monthGoal;
+        monthGoalLabelEl.textContent = monthGoal;
+        saveGoals();
+        updateGoalPanels();
+      });
+
+      clearBtn.addEventListener("click", () => {
+        if(confirm("Réinitialiser toutes les cases cochées pour 2026 ?")){
+          checked.clear();
+          saveChecked();
+          updateGoalPanels();
+          renderCalendar();
+        }
+      });
+
+      // Render
+      renderCalendar();
+      updateGoalPanels();
+      saveChecked();
+      saveGoals();
+    })();
+  </script>
+</body>
+</html>

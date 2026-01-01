@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Calendrier Sobriété 2026 — objectifs</title>
+  <title>Calendrier Sobriété 2026 — objectifs glissants</title>
+
   <style>
     :root{
       --bg:#ffffff;
@@ -13,8 +14,9 @@
       --card:#ffffff;
       --soft:#f9fafb;
 
-      --checkedBg:#111827;
-      --checkedInk:#ffffff;
+      /* Accent demandé */
+      --accent:#f4baa4ff;  /* si souci, remplace par #f4baa4 */
+      --accentInk:#111827;
 
       --radius:16px;
     }
@@ -91,6 +93,45 @@
     }
     .chip strong{ color:var(--ink); font-weight:700; }
 
+    /* Bande de félicitations */
+    .congrats{
+      display:none;
+      border:1px solid rgba(0,0,0,.06);
+      background: linear-gradient(180deg, rgba(244,186,164,.30), rgba(244,186,164,.12));
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      margin: 10px 0 16px;
+      box-shadow: 0 6px 22px rgba(0,0,0,.05);
+    }
+    .congrats.show{ display:block; }
+    .congrats .top{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    .congrats .msg{
+      font-weight:800;
+      letter-spacing:-0.01em;
+      font-size: 14px;
+    }
+    .congrats .sub{
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 4px;
+      line-height:1.35;
+    }
+    .congrats .badge{
+      background: var(--accent);
+      color: var(--accentInk);
+      border-radius: 999px;
+      padding: 8px 10px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space:nowrap;
+    }
+
     .goalPanel{
       display:grid;
       grid-template-columns: 1fr 1fr;
@@ -137,22 +178,6 @@
       justify-content:flex-end;
     }
 
-    label{
-      font-size: 12px;
-      color: var(--muted);
-    }
-    input[type="number"]{
-      width: 86px;
-      padding: 8px 10px;
-      border-radius: 999px;
-      border:1px solid var(--border);
-      font-size: 13px;
-      outline:none;
-    }
-    input[type="number"]:focus{
-      border-color:#cbd5e1;
-    }
-
     .bar{
       height: 10px;
       border-radius: 999px;
@@ -163,7 +188,7 @@
     .fill{
       height:100%;
       width:0%;
-      background: #111827;
+      background: var(--accent);
       border-radius: 999px;
       transition: width .25s ease;
     }
@@ -278,10 +303,11 @@
       transform: translateY(-1px);
     }
 
+    /* Jours cochés en accent */
     .day.checked{
-      background: var(--checkedBg);
-      border-color: var(--checkedBg);
-      color: var(--checkedInk);
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--accentInk);
     }
     .day.checked::after{
       content:"✓";
@@ -317,42 +343,44 @@
       </div>
     </div>
 
+    <!-- Félicitations -->
+    <div id="congrats" class="congrats">
+      <div class="top">
+        <div>
+          <div id="congratsMsg" class="msg">Bravo ✨</div>
+          <div id="congratsSub" class="sub"></div>
+        </div>
+        <div id="congratsBadge" class="badge">Objectif atteint</div>
+      </div>
+    </div>
+
+    <!-- Objectifs glissants -->
     <div class="goalPanel">
-      <!-- Hebdo -->
-      <div class="panel" id="weekPanel">
+      <div class="panel" id="rolling7Panel">
         <div class="panelTop">
           <div class="panelTitle">
-            <div class="kicker">Objectif hebdo (semaine en cours)</div>
-            <div class="value"><span id="weekCount">0</span> / <span id="weekGoalLabel">5</span> jours cochés</div>
-          </div>
-          <div class="panelRight">
-            <label for="weekGoal">Objectif</label>
-            <input id="weekGoal" type="number" min="0" max="7" value="5" />
+            <div class="kicker">Objectif glissant</div>
+            <div class="value"><span id="roll7Count">0</span> / <span id="roll7GoalLabel">7</span> jours cochés</div>
           </div>
         </div>
-        <div class="bar"><div class="fill" id="weekFill"></div></div>
+        <div class="bar"><div class="fill" id="roll7Fill"></div></div>
         <div class="panelFoot">
-          <div id="weekRange">—</div>
-          <div id="weekRemaining">—</div>
+          <div id="roll7Range">—</div>
+          <div id="roll7Remaining">—</div>
         </div>
       </div>
 
-      <!-- Mensuel -->
-      <div class="panel" id="monthPanel">
+      <div class="panel" id="rolling21Panel">
         <div class="panelTop">
           <div class="panelTitle">
-            <div class="kicker">Objectif mensuel (mois en cours)</div>
-            <div class="value"><span id="monthCount">0</span> / <span id="monthGoalLabel">12</span> jours cochés</div>
-          </div>
-          <div class="panelRight">
-            <label for="monthGoal">Objectif</label>
-            <input id="monthGoal" type="number" min="0" max="31" value="12" />
+            <div class="kicker">Objectif glissant</div>
+            <div class="value"><span id="roll21Count">0</span> / <span id="roll21GoalLabel">21</span> jours cochés</div>
           </div>
         </div>
-        <div class="bar"><div class="fill" id="monthFill"></div></div>
+        <div class="bar"><div class="fill" id="roll21Fill"></div></div>
         <div class="panelFoot">
-          <div id="monthNameNow">—</div>
-          <div id="monthRemaining">—</div>
+          <div id="roll21Range">—</div>
+          <div id="roll21Remaining">—</div>
         </div>
       </div>
     </div>
@@ -361,7 +389,7 @@
 
     <div class="legend">
       ✅ Re-cliquer sur un jour = enlever la marque. <br/>
-      ℹ️ Les objectifs hebdo/mensuels sont modifiables et mémorisés sur le navigateur de la cliente.
+      ℹ️ Les objectifs sont calculés sur les <strong>7</strong> et <strong>21</strong> derniers jours (glissant), indépendamment des semaines/mois.
     </div>
   </div>
 
@@ -369,7 +397,6 @@
     (function(){
       const YEAR = 2026;
       const STORAGE_KEY = "sobriete_calendar_" + YEAR;
-      const GOALS_KEY = "sobriete_goals_" + YEAR;
 
       const monthNames = [
         "Janvier","Février","Mars","Avril","Mai","Juin",
@@ -379,77 +406,73 @@
       // Lundi -> Dimanche
       const dow = ["L","M","M","J","V","S","D"];
 
-      // Etat: dates cochées
+      // Objectifs fixes demandés
+      const ROLL7_GOAL = 7;
+      const ROLL21_GOAL = 21;
+
+      // Charge l'état (set de dates cochées) depuis localStorage
       const checked = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"));
 
-      // Objectifs
-      const savedGoals = JSON.parse(localStorage.getItem(GOALS_KEY) || "{}");
-      let weekGoal = Number.isFinite(savedGoals.weekGoal) ? savedGoals.weekGoal : 5;
-      let monthGoal = Number.isFinite(savedGoals.monthGoal) ? savedGoals.monthGoal : 12;
-
-      // Elements
       const calendarEl = document.getElementById("calendar");
-
       const countYearEl = document.getElementById("countYear");
       const clearBtn = document.getElementById("clearBtn");
 
-      const weekGoalInput = document.getElementById("weekGoal");
-      const monthGoalInput = document.getElementById("monthGoal");
+      // Rolling panels
+      const roll7CountEl = document.getElementById("roll7Count");
+      const roll7GoalLabelEl = document.getElementById("roll7GoalLabel");
+      const roll7FillEl = document.getElementById("roll7Fill");
+      const roll7RangeEl = document.getElementById("roll7Range");
+      const roll7RemainingEl = document.getElementById("roll7Remaining");
 
-      const weekCountEl = document.getElementById("weekCount");
-      const weekGoalLabelEl = document.getElementById("weekGoalLabel");
-      const weekFillEl = document.getElementById("weekFill");
-      const weekRangeEl = document.getElementById("weekRange");
-      const weekRemainingEl = document.getElementById("weekRemaining");
+      const roll21CountEl = document.getElementById("roll21Count");
+      const roll21GoalLabelEl = document.getElementById("roll21GoalLabel");
+      const roll21FillEl = document.getElementById("roll21Fill");
+      const roll21RangeEl = document.getElementById("roll21Range");
+      const roll21RemainingEl = document.getElementById("roll21Remaining");
 
-      const monthCountEl = document.getElementById("monthCount");
-      const monthGoalLabelEl = document.getElementById("monthGoalLabel");
-      const monthFillEl = document.getElementById("monthFill");
-      const monthNameNowEl = document.getElementById("monthNameNow");
-      const monthRemainingEl = document.getElementById("monthRemaining");
+      // Congrats
+      const congratsEl = document.getElementById("congrats");
+      const congratsMsgEl = document.getElementById("congratsMsg");
+      const congratsSubEl = document.getElementById("congratsSub");
+      const congratsBadgeEl = document.getElementById("congratsBadge");
 
       function pad2(n){ return String(n).padStart(2,"0"); }
       function isoDate(y,m,d){ return `${y}-${pad2(m)}-${pad2(d)}`; } // m: 1-12
 
-      function saveChecked(){
+      function save(){
         localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(checked)));
-      }
-      function saveGoals(){
-        localStorage.setItem(GOALS_KEY, JSON.stringify({ weekGoal, monthGoal }));
       }
 
       function weekdayMondayFirst(date){
         // JS: 0=Dim ... 6=Sam ; on veut 0=Lun ... 6=Dim
-        return (date.getDay() + 6) % 7;
-      }
-
-      function startOfWeekMonday(date){
-        // retourne le lundi de la semaine (à 00:00 local)
-        const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-        const offset = weekdayMondayFirst(d);
-        d.setDate(d.getDate() - offset);
-        return d;
-      }
-
-      function endOfWeekSunday(date){
-        const start = startOfWeekMonday(date);
-        const end = new Date(start);
-        end.setDate(end.getDate() + 6);
-        return end;
+        const js = date.getDay();
+        return (js + 6) % 7;
       }
 
       function fmtFR(date){
-        // dd/mm
         return `${pad2(date.getDate())}/${pad2(date.getMonth()+1)}`;
       }
 
-      function countInRangeInclusive(start, end){
-        // compte les dates cochées appartenant à [start, end]
-        let c = 0;
-        const s = new Date(start.getFullYear(), start.getMonth(), start.getDate());
-        const e = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+      function startOfDay(date){
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      }
 
-        // itère jours
+      function addDays(date, n){
+        const d = new Date(date);
+        d.setDate(d.getDate() + n);
+        return d;
+      }
+
+      function clampPct(part, total){
+        if(total <= 0) return 0;
+        const p = Math.round((part / total) * 100);
+        return Math.max(0, Math.min(100, p));
+      }
+
+      function countInRangeInclusive(start, end){
+        let c = 0;
+        const s = startOfDay(start);
+        const e = startOfDay(end);
         for(let d = new Date(s); d <= e; d.setDate(d.getDate() + 1)){
           const id = isoDate(d.getFullYear(), d.getMonth()+1, d.getDate());
           if(checked.has(id)) c++;
@@ -458,7 +481,6 @@
       }
 
       function countInMonth(year, monthIndex){
-        // monthIndex 0-11
         const daysInMonth = new Date(year, monthIndex+1, 0).getDate();
         let c = 0;
         for(let day=1; day<=daysInMonth; day++){
@@ -468,57 +490,62 @@
         return c;
       }
 
-      function clamp(n, min, max){
-        n = Number(n);
-        if(!Number.isFinite(n)) return min;
-        return Math.min(max, Math.max(min, n));
-      }
+      function updateRollingPanelsAndCongrats(){
+        const now = startOfDay(new Date());
 
-      function pct(part, total){
-        if(total <= 0) return 0;
-        return Math.max(0, Math.min(100, Math.round((part / total) * 100)));
-      }
+        // Rolling 7: aujourd'hui inclus + 6 jours avant
+        const r7Start = addDays(now, -6);
+        const r7End = now;
+        const r7Count = countInRangeInclusive(r7Start, r7End);
 
-      function updateGoalPanels(){
-        // On se base sur "aujourd'hui" (jour de la cliente)
-        const now = new Date();
+        roll7CountEl.textContent = r7Count;
+        roll7GoalLabelEl.textContent = ROLL7_GOAL;
+        roll7RangeEl.textContent = `7 derniers jours : ${fmtFR(r7Start)} → ${fmtFR(r7End)}`;
+        roll7FillEl.style.width = clampPct(r7Count, ROLL7_GOAL) + "%";
+        const r7Remaining = Math.max(0, ROLL7_GOAL - r7Count);
+        roll7RemainingEl.textContent = (r7Remaining === 0) ? "Objectif atteint ✨" : `Reste ${r7Remaining} jour(s)`;
 
-        // Hebdo
-        const ws = startOfWeekMonday(now);
-        const we = endOfWeekSunday(now);
-        const weekCount = countInRangeInclusive(ws, we);
+        // Rolling 21: aujourd'hui inclus + 20 jours avant
+        const r21Start = addDays(now, -20);
+        const r21End = now;
+        const r21Count = countInRangeInclusive(r21Start, r21End);
 
-        weekCountEl.textContent = weekCount;
-        weekGoalLabelEl.textContent = weekGoal;
-        weekRangeEl.textContent = `Semaine : ${fmtFR(ws)} → ${fmtFR(we)}`;
-
-        const wRemaining = Math.max(0, weekGoal - weekCount);
-        weekRemainingEl.textContent = (weekGoal <= 0)
-          ? "Objectif : 0"
-          : (wRemaining === 0 ? "Objectif atteint ✨" : `Reste ${wRemaining} jour(s)`);
-
-        weekFillEl.style.width = pct(weekCount, weekGoal) + "%";
-
-        // Mensuel
-        const m = now.getMonth();
-        const monthCount = countInMonth(now.getFullYear(), m);
-
-        monthCountEl.textContent = monthCount;
-        monthGoalLabelEl.textContent = monthGoal;
-        monthNameNowEl.textContent = `Mois : ${monthNames[m]} ${now.getFullYear()}`;
-
-        const mRemaining = Math.max(0, monthGoal - monthCount);
-        monthRemainingEl.textContent = (monthGoal <= 0)
-          ? "Objectif : 0"
-          : (mRemaining === 0 ? "Objectif atteint ✨" : `Reste ${mRemaining} jour(s)`);
-
-        monthFillEl.style.width = pct(monthCount, monthGoal) + "%";
+        roll21CountEl.textContent = r21Count;
+        roll21GoalLabelEl.textContent = ROLL21_GOAL;
+        roll21RangeEl.textContent = `21 derniers jours : ${fmtFR(r21Start)} → ${fmtFR(r21End)}`;
+        roll21FillEl.style.width = clampPct(r21Count, ROLL21_GOAL) + "%";
+        const r21Remaining = Math.max(0, ROLL21_GOAL - r21Count);
+        roll21RemainingEl.textContent = (r21Remaining === 0) ? "Objectif atteint ✨" : `Reste ${r21Remaining} jour(s)`;
 
         // Total année
         countYearEl.textContent = checked.size;
+
+        // Félicitations auto
+        const hit7 = r7Count >= ROLL7_GOAL;
+        const hit21 = r21Count >= ROLL21_GOAL;
+
+        if(hit7 || hit21){
+          congratsEl.classList.add("show");
+
+          if(hit7 && hit21){
+            congratsMsgEl.textContent = "Double victoire ✨";
+            congratsSubEl.textContent = "Vous avez atteint les objectifs glissants 7 jours et 21 jours. Continuez comme ça.";
+            congratsBadgeEl.textContent = "7/7 + 21/21";
+          } else if(hit21){
+            congratsMsgEl.textContent = "Magnifique ✨ Objectif 21 jours atteint";
+            congratsSubEl.textContent = "Votre constance change tout. Vous êtes en train d’installer un nouveau standard.";
+            congratsBadgeEl.textContent = "21/21";
+          } else {
+            congratsMsgEl.textContent = "Bravo ✨ Objectif 7 jours atteint";
+            congratsSubEl.textContent = "Une semaine glissante complète. Continuez : ce rythme devient naturel.";
+            congratsBadgeEl.textContent = "7/7";
+          }
+        } else {
+          congratsEl.classList.remove("show");
+        }
       }
 
-      function buildMonth(monthIndex){ // 0-11
+      function buildMonth(monthIndex){
         const monthCard = document.createElement("section");
         monthCard.className = "month";
 
@@ -559,7 +586,6 @@
 
         const first = new Date(YEAR, monthIndex, 1);
         const startOffset = weekdayMondayFirst(first);
-
         const daysInMonth = new Date(YEAR, monthIndex + 1, 0).getDate();
 
         for(let i=0;i<startOffset;i++){
@@ -584,14 +610,14 @@
               checked.add(id);
               cell.classList.add("checked");
             }
-            saveChecked();
+            save();
 
-            // Maj mini-compteurs + panels
             const mcountEl = document.getElementById(`mcount-${monthIndex}`);
             if(mcountEl){
               mcountEl.textContent = countInMonth(YEAR, monthIndex);
             }
-            updateGoalPanels();
+
+            updateRollingPanelsAndCongrats();
           });
 
           daysGrid.appendChild(cell);
@@ -603,51 +629,27 @@
         return monthCard;
       }
 
-      function renderCalendar(){
+      function render(){
         calendarEl.innerHTML = "";
         for(let m=0; m<12; m++){
           calendarEl.appendChild(buildMonth(m));
         }
+        updateRollingPanelsAndCongrats();
+        save();
       }
-
-      // Init inputs
-      weekGoalInput.value = weekGoal;
-      monthGoalInput.value = monthGoal;
-
-      weekGoalLabelEl.textContent = weekGoal;
-      monthGoalLabelEl.textContent = monthGoal;
-
-      weekGoalInput.addEventListener("input", () => {
-        weekGoal = clamp(weekGoalInput.value, 0, 7);
-        weekGoalInput.value = weekGoal;
-        weekGoalLabelEl.textContent = weekGoal;
-        saveGoals();
-        updateGoalPanels();
-      });
-
-      monthGoalInput.addEventListener("input", () => {
-        monthGoal = clamp(monthGoalInput.value, 0, 31);
-        monthGoalInput.value = monthGoal;
-        monthGoalLabelEl.textContent = monthGoal;
-        saveGoals();
-        updateGoalPanels();
-      });
 
       clearBtn.addEventListener("click", () => {
         if(confirm("Réinitialiser toutes les cases cochées pour 2026 ?")){
           checked.clear();
-          saveChecked();
-          updateGoalPanels();
-          renderCalendar();
+          save();
+          render();
         }
       });
 
-      // Render
-      renderCalendar();
-      updateGoalPanels();
-      saveChecked();
-      saveGoals();
+      render();
     })();
   </script>
 </body>
 </html>
+
+

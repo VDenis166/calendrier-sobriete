@@ -184,7 +184,7 @@
     }
     .panelFoot{
       display:flex;
-      justify-content:space-between;
+      justify-content:flex-end;
       margin-top:8px;
       font-size: 12px;
       color: var(--muted);
@@ -246,6 +246,8 @@
       background: var(--soft);
       color: var(--muted);
       font-size: 12px;
+      min-width: 34px;
+      text-align:center;
     }
     .monthMini strong{ color: var(--ink); }
 
@@ -346,7 +348,6 @@
         </div>
         <div class="bar"><div class="fill" id="goalFill"></div></div>
         <div class="panelFoot">
-          <div id="goalRange">—</div>
           <div id="goalRemaining">—</div>
         </div>
       </div>
@@ -364,9 +365,8 @@
       const YEAR = 2026;
       const STORAGE_KEY = "sobriete_calendar_" + YEAR;
 
-      // Objectif (21 jours)
-      const GOAL_DAYS = 21;
-      const WINDOW_DAYS = 21; // fenêtre de calcul (21 derniers jours)
+      // Objectif global (total de l'année)
+      const GOAL_TOTAL = 21;
 
       const monthNames = [
         "Janvier","Février","Mars","Avril","Mai","Juin",
@@ -386,7 +386,6 @@
       // Goal UI
       const goalCountEl = document.getElementById("goalCount");
       const goalFillEl = document.getElementById("goalFill");
-      const goalRangeEl = document.getElementById("goalRange");
       const goalRemainingEl = document.getElementById("goalRemaining");
 
       // Congrats UI
@@ -407,35 +406,10 @@
         return (date.getDay() + 6) % 7;
       }
 
-      function fmtFR(date){
-        return `${pad2(date.getDate())}/${pad2(date.getMonth()+1)}`;
-      }
-
-      function startOfDay(date){
-        return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-      }
-
-      function addDays(date, n){
-        const d = new Date(date);
-        d.setDate(d.getDate() + n);
-        return d;
-      }
-
       function clampPct(part, total){
         if(total <= 0) return 0;
         const p = Math.round((part / total) * 100);
         return Math.max(0, Math.min(100, p));
-      }
-
-      function countInRangeInclusive(start, end){
-        let c = 0;
-        const s = startOfDay(start);
-        const e = startOfDay(end);
-        for(let d = new Date(s); d <= e; d.setDate(d.getDate() + 1)){
-          const id = isoDate(d.getFullYear(), d.getMonth()+1, d.getDate());
-          if(marked.has(id)) c++;
-        }
-        return c;
       }
 
       function countInMonth(year, monthIndex){
@@ -449,34 +423,26 @@
       }
 
       function updateGoalAndCongrats(){
-        const now = startOfDay(new Date());
+        const total = marked.size;
 
-        const windowStart = addDays(now, -(WINDOW_DAYS - 1));
-        const windowEnd = now;
+        // "X jours sans alcool"
+        goalCountEl.textContent = total;
 
-        const c = countInRangeInclusive(windowStart, windowEnd);
+        // barre sur objectif
+        goalFillEl.style.width = clampPct(total, GOAL_TOTAL) + "%";
 
-        // "X jours sans alcool" (sans "/0", sans "jours cochés")
-        goalCountEl.textContent = c;
-
-        // barre de progression sur objectif 21
-        goalFillEl.style.width = clampPct(c, GOAL_DAYS) + "%";
-
-        // plage de dates affichée
-        goalRangeEl.textContent = `${WINDOW_DAYS} derniers jours : ${fmtFR(windowStart)} → ${fmtFR(windowEnd)}`;
-
-        const remaining = Math.max(0, GOAL_DAYS - c);
+        const remaining = Math.max(0, GOAL_TOTAL - total);
         goalRemainingEl.textContent = (remaining === 0) ? "Objectif atteint ✨" : `Reste ${remaining} jour(s)`;
 
-        // Total année
-        countYearEl.textContent = marked.size;
+        // Total année (chip)
+        countYearEl.textContent = total;
 
         // Félicitations
-        if(c >= GOAL_DAYS){
+        if(total >= GOAL_TOTAL){
           congratsEl.classList.add("show");
           congratsMsgEl.textContent = "Bravo ✨ Objectif atteint";
           congratsSubEl.textContent = "Votre constance change tout. Continuez : c’est en train de devenir naturel.";
-          congratsBadgeEl.textContent = `${GOAL_DAYS} jours`;
+          congratsBadgeEl.textContent = `${GOAL_TOTAL} jours`;
         } else {
           congratsEl.classList.remove("show");
         }
@@ -496,7 +462,7 @@
         const meta = document.createElement("div");
         meta.className = "monthMeta";
 
-        // Mini-compteur mois (sans "Cochés")
+        // Mini-compteur mois (juste le chiffre)
         const monthCount = countInMonth(YEAR, monthIndex);
         const metaPill = document.createElement("div");
         metaPill.className = "monthMini";
@@ -589,6 +555,7 @@
   </script>
 </body>
 </html>
+
 
 
 

@@ -379,7 +379,7 @@
       </div>
     </div>
 
-    <!-- Panneau total + étoiles -->
+    <!-- Total + étoiles -->
     <div class="goalPanel">
       <div class="panel" id="goalPanel">
         <div class="panelTop">
@@ -427,7 +427,7 @@
       const YEAR = 2026;
       const STORAGE_KEY = "sobriete_calendar_" + YEAR;
 
-      // Paliers étoiles
+      // Paliers étoiles basés UNIQUEMENT sur le TOTAL (pas de fenêtre 21j)
       const MILESTONES = [
         { days: 7, stars: 1 },
         { days: 21, stars: 2 },
@@ -436,7 +436,6 @@
         { days: 180, stars: 5 },
       ];
 
-      // Pour la barre: on la cale sur le prochain palier (progressif)
       function nextMilestone(total){
         return MILESTONES.find(m => total < m.days) || null;
       }
@@ -486,7 +485,6 @@
       }
 
       function weekdayMondayFirst(date){
-        // JS: 0=Dim ... 6=Sam ; on veut 0=Lun ... 6=Dim
         return (date.getDay() + 6) % 7;
       }
 
@@ -507,7 +505,6 @@
       }
 
       function updateStars(total){
-        // 1★ >= 7, 2★ >= 21, etc.
         const thresholds = [7, 21, 60, 90, 180];
         thresholds.forEach((t, i) => {
           if(total >= t) stars[i].classList.add("on");
@@ -527,19 +524,19 @@
 
         if(cur.stars === 1){
           congratsMsgEl.textContent = "Bravo ✨ 1 étoile obtenue";
-          congratsSubEl.textContent = "7 jours sans alcool. Une première marche solide — continuez.";
+          congratsSubEl.textContent = "7 jours au total. Une première marche solide — continuez.";
         } else if(cur.stars === 2){
           congratsMsgEl.textContent = "Magnifique ✨ 2 étoiles";
-          congratsSubEl.textContent = "21 jours sans alcool. Votre constance devient une signature.";
+          congratsSubEl.textContent = "21 jours au total. Votre constance devient une signature.";
         } else if(cur.stars === 3){
           congratsMsgEl.textContent = "Incroyable ✨ 3 étoiles";
-          congratsSubEl.textContent = "60 jours sans alcool. Vous êtes en train d’installer un nouveau standard.";
+          congratsSubEl.textContent = "60 jours au total. Vous installez un nouveau standard.";
         } else if(cur.stars === 4){
           congratsMsgEl.textContent = "Exceptionnel ✨ 4 étoiles";
-          congratsSubEl.textContent = "90 jours sans alcool. C’est une transformation profonde.";
+          congratsSubEl.textContent = "90 jours au total. C’est une transformation profonde.";
         } else {
           congratsMsgEl.textContent = "Légendaire ✨ 5 étoiles";
-          congratsSubEl.textContent = "180 jours sans alcool. Vous avez créé une vraie liberté intérieure.";
+          congratsSubEl.textContent = "180 jours au total. Une vraie liberté intérieure.";
         }
       }
 
@@ -553,15 +550,17 @@
         updateCongrats(total);
 
         const next = nextMilestone(total);
+
+        // barre: progression vers le prochain palier, et si aucun, 100%
         if(next){
+          goalFillEl.style.width = clampPct(total, next.days) + "%";
           const remaining = next.days - total;
           goalRemainingEl.textContent = `Prochain palier : ${next.days} jours`;
           nextStarEl.textContent = `Encore ${remaining} jour(s) pour ${next.stars}★`;
-          goalFillEl.style.width = clampPct(total, next.days) + "%";
         } else {
+          goalFillEl.style.width = "100%";
           goalRemainingEl.textContent = "Tous les paliers sont atteints ✨";
           nextStarEl.textContent = "5★ acquis";
-          goalFillEl.style.width = "100%";
         }
       }
 
@@ -671,3 +670,4 @@
   </script>
 </body>
 </html>
+

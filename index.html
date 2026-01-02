@@ -3,11 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Calendrier Sobriété 2026 — objectifs glissants</title>
+  <title>Calendrier Sobriété Chic 2026</title>
 
   <style>
     :root{
-      --bg:#ffffff;
       --ink:#111827;
       --muted:#6b7280;
       --border:#e5e7eb;
@@ -15,8 +14,7 @@
       --soft:#f9fafb;
 
       /* Accent demandé */
-      --accent:#f4baa4ff;  /* si souci, remplace par #f4baa4 */
-      --accentInk:#111827;
+      --accent:#f4baa4ff; /* si besoin: #f4baa4 */
 
       --radius:16px;
     }
@@ -124,7 +122,7 @@
     }
     .congrats .badge{
       background: var(--accent);
-      color: var(--accentInk);
+      color: var(--ink);
       border-radius: 999px;
       padding: 8px 10px;
       font-size: 12px;
@@ -132,14 +130,12 @@
       white-space:nowrap;
     }
 
+    /* Une seule fenêtre d'objectif */
     .goalPanel{
       display:grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr;
       gap:12px;
       margin: 10px 0 16px;
-    }
-    @media (max-width: 720px){
-      .goalPanel{ grid-template-columns: 1fr; }
     }
 
     .panel{
@@ -155,6 +151,7 @@
       gap:12px;
       align-items:flex-start;
       margin-bottom: 10px;
+      flex-wrap:wrap;
     }
     .panelTitle{
       display:flex;
@@ -169,13 +166,6 @@
       font-size: 16px;
       font-weight: 800;
       letter-spacing:-0.01em;
-    }
-    .panelRight{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
     }
 
     .bar{
@@ -295,7 +285,6 @@
 
     .day{
       cursor:pointer;
-      position:relative;
       transition: transform .05s ease, background .15s ease, border-color .15s ease;
     }
     .day:hover{
@@ -303,19 +292,11 @@
       transform: translateY(-1px);
     }
 
-    /* Jours cochés en accent */
-    .day.checked{
+    /* Jours marqués: couleur uniquement (pas de coche) */
+    .day.marked{
       background: var(--accent);
       border-color: var(--accent);
-      color: var(--accentInk);
-    }
-    .day.checked::after{
-      content:"✓";
-      position:absolute;
-      right: 7px;
-      top: 6px;
-      font-size: 12px;
-      opacity:.95;
+      color: var(--ink);
     }
 
     .legend{
@@ -331,13 +312,13 @@
   <div class="wrap">
     <div class="header">
       <div class="title">
-        <h1>Calendrier 2026 — suivi sobriété</h1>
-        <p>Cliquez sur un jour pour le cocher ✅ (enregistré automatiquement sur ce navigateur).</p>
+        <h1>Calendrier Sobriété Chic 2026</h1>
+        <p>Cliquez sur un jour pour le colorer (enregistré automatiquement sur ce navigateur).</p>
       </div>
 
       <div class="controls">
-        <div class="chip" title="Total de jours cochés sur 2026 (ce navigateur)">
-          Total cochés : <strong id="countYear">0</strong>
+        <div class="chip" title="Total sur 2026 (ce navigateur)">
+          Total : <strong id="countYear">0</strong>
         </div>
         <button id="clearBtn" type="button">Réinitialiser</button>
       </div>
@@ -354,33 +335,19 @@
       </div>
     </div>
 
-    <!-- Objectifs glissants -->
+    <!-- Une seule fenêtre d'objectif -->
     <div class="goalPanel">
-      <div class="panel" id="rolling7Panel">
+      <div class="panel" id="goalPanel">
         <div class="panelTop">
           <div class="panelTitle">
-            <div class="kicker">Objectif glissant</div>
-            <div class="value"><span id="roll7Count">0</span> / <span id="roll7GoalLabel">7</span> jours cochés</div>
+            <div class="kicker">Objectif</div>
+            <div class="value"><span id="goalCount">0</span> jours sans alcool</div>
           </div>
         </div>
-        <div class="bar"><div class="fill" id="roll7Fill"></div></div>
+        <div class="bar"><div class="fill" id="goalFill"></div></div>
         <div class="panelFoot">
-          <div id="roll7Range">—</div>
-          <div id="roll7Remaining">—</div>
-        </div>
-      </div>
-
-      <div class="panel" id="rolling21Panel">
-        <div class="panelTop">
-          <div class="panelTitle">
-            <div class="kicker">Objectif glissant</div>
-            <div class="value"><span id="roll21Count">0</span> / <span id="roll21GoalLabel">21</span> jours cochés</div>
-          </div>
-        </div>
-        <div class="bar"><div class="fill" id="roll21Fill"></div></div>
-        <div class="panelFoot">
-          <div id="roll21Range">—</div>
-          <div id="roll21Remaining">—</div>
+          <div id="goalRange">—</div>
+          <div id="goalRemaining">—</div>
         </div>
       </div>
     </div>
@@ -388,8 +355,7 @@
     <div id="calendar" class="grid"></div>
 
     <div class="legend">
-      ✅ Re-cliquer sur un jour = enlever la marque. <br/>
-      ℹ️ Les objectifs sont calculés sur les <strong>7</strong> et <strong>21</strong> derniers jours (glissant), indépendamment des semaines/mois.
+      ✅ Re-cliquer sur un jour = enlever la couleur.
     </div>
   </div>
 
@@ -397,6 +363,10 @@
     (function(){
       const YEAR = 2026;
       const STORAGE_KEY = "sobriete_calendar_" + YEAR;
+
+      // Objectif (21 jours)
+      const GOAL_DAYS = 21;
+      const WINDOW_DAYS = 21; // fenêtre de calcul (21 derniers jours)
 
       const monthNames = [
         "Janvier","Février","Mars","Avril","Mai","Juin",
@@ -406,31 +376,20 @@
       // Lundi -> Dimanche
       const dow = ["L","M","M","J","V","S","D"];
 
-      // Objectifs fixes demandés
-      const ROLL7_GOAL = 7;
-      const ROLL21_GOAL = 21;
-
-      // Charge l'état (set de dates cochées) depuis localStorage
-      const checked = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"));
+      // Etat: dates "sans alcool"
+      const marked = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"));
 
       const calendarEl = document.getElementById("calendar");
       const countYearEl = document.getElementById("countYear");
       const clearBtn = document.getElementById("clearBtn");
 
-      // Rolling panels
-      const roll7CountEl = document.getElementById("roll7Count");
-      const roll7GoalLabelEl = document.getElementById("roll7GoalLabel");
-      const roll7FillEl = document.getElementById("roll7Fill");
-      const roll7RangeEl = document.getElementById("roll7Range");
-      const roll7RemainingEl = document.getElementById("roll7Remaining");
+      // Goal UI
+      const goalCountEl = document.getElementById("goalCount");
+      const goalFillEl = document.getElementById("goalFill");
+      const goalRangeEl = document.getElementById("goalRange");
+      const goalRemainingEl = document.getElementById("goalRemaining");
 
-      const roll21CountEl = document.getElementById("roll21Count");
-      const roll21GoalLabelEl = document.getElementById("roll21GoalLabel");
-      const roll21FillEl = document.getElementById("roll21Fill");
-      const roll21RangeEl = document.getElementById("roll21Range");
-      const roll21RemainingEl = document.getElementById("roll21Remaining");
-
-      // Congrats
+      // Congrats UI
       const congratsEl = document.getElementById("congrats");
       const congratsMsgEl = document.getElementById("congratsMsg");
       const congratsSubEl = document.getElementById("congratsSub");
@@ -440,13 +399,12 @@
       function isoDate(y,m,d){ return `${y}-${pad2(m)}-${pad2(d)}`; } // m: 1-12
 
       function save(){
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(checked)));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(marked)));
       }
 
       function weekdayMondayFirst(date){
         // JS: 0=Dim ... 6=Sam ; on veut 0=Lun ... 6=Dim
-        const js = date.getDay();
-        return (js + 6) % 7;
+        return (date.getDay() + 6) % 7;
       }
 
       function fmtFR(date){
@@ -475,7 +433,7 @@
         const e = startOfDay(end);
         for(let d = new Date(s); d <= e; d.setDate(d.getDate() + 1)){
           const id = isoDate(d.getFullYear(), d.getMonth()+1, d.getDate());
-          if(checked.has(id)) c++;
+          if(marked.has(id)) c++;
         }
         return c;
       }
@@ -485,61 +443,40 @@
         let c = 0;
         for(let day=1; day<=daysInMonth; day++){
           const id = isoDate(year, monthIndex+1, day);
-          if(checked.has(id)) c++;
+          if(marked.has(id)) c++;
         }
         return c;
       }
 
-      function updateRollingPanelsAndCongrats(){
+      function updateGoalAndCongrats(){
         const now = startOfDay(new Date());
 
-        // Rolling 7: aujourd'hui inclus + 6 jours avant
-        const r7Start = addDays(now, -6);
-        const r7End = now;
-        const r7Count = countInRangeInclusive(r7Start, r7End);
+        const windowStart = addDays(now, -(WINDOW_DAYS - 1));
+        const windowEnd = now;
 
-        roll7CountEl.textContent = r7Count;
-        roll7GoalLabelEl.textContent = ROLL7_GOAL;
-        roll7RangeEl.textContent = `7 derniers jours : ${fmtFR(r7Start)} → ${fmtFR(r7End)}`;
-        roll7FillEl.style.width = clampPct(r7Count, ROLL7_GOAL) + "%";
-        const r7Remaining = Math.max(0, ROLL7_GOAL - r7Count);
-        roll7RemainingEl.textContent = (r7Remaining === 0) ? "Objectif atteint ✨" : `Reste ${r7Remaining} jour(s)`;
+        const c = countInRangeInclusive(windowStart, windowEnd);
 
-        // Rolling 21: aujourd'hui inclus + 20 jours avant
-        const r21Start = addDays(now, -20);
-        const r21End = now;
-        const r21Count = countInRangeInclusive(r21Start, r21End);
+        // "X jours sans alcool" (sans "/0", sans "jours cochés")
+        goalCountEl.textContent = c;
 
-        roll21CountEl.textContent = r21Count;
-        roll21GoalLabelEl.textContent = ROLL21_GOAL;
-        roll21RangeEl.textContent = `21 derniers jours : ${fmtFR(r21Start)} → ${fmtFR(r21End)}`;
-        roll21FillEl.style.width = clampPct(r21Count, ROLL21_GOAL) + "%";
-        const r21Remaining = Math.max(0, ROLL21_GOAL - r21Count);
-        roll21RemainingEl.textContent = (r21Remaining === 0) ? "Objectif atteint ✨" : `Reste ${r21Remaining} jour(s)`;
+        // barre de progression sur objectif 21
+        goalFillEl.style.width = clampPct(c, GOAL_DAYS) + "%";
+
+        // plage de dates affichée
+        goalRangeEl.textContent = `${WINDOW_DAYS} derniers jours : ${fmtFR(windowStart)} → ${fmtFR(windowEnd)}`;
+
+        const remaining = Math.max(0, GOAL_DAYS - c);
+        goalRemainingEl.textContent = (remaining === 0) ? "Objectif atteint ✨" : `Reste ${remaining} jour(s)`;
 
         // Total année
-        countYearEl.textContent = checked.size;
+        countYearEl.textContent = marked.size;
 
-        // Félicitations auto
-        const hit7 = r7Count >= ROLL7_GOAL;
-        const hit21 = r21Count >= ROLL21_GOAL;
-
-        if(hit7 || hit21){
+        // Félicitations
+        if(c >= GOAL_DAYS){
           congratsEl.classList.add("show");
-
-          if(hit7 && hit21){
-            congratsMsgEl.textContent = "Double victoire ✨";
-            congratsSubEl.textContent = "Vous avez atteint les objectifs glissants 7 jours et 21 jours. Continuez comme ça.";
-            congratsBadgeEl.textContent = "7/7 + 21/21";
-          } else if(hit21){
-            congratsMsgEl.textContent = "Magnifique ✨ Objectif 21 jours atteint";
-            congratsSubEl.textContent = "Votre constance change tout. Vous êtes en train d’installer un nouveau standard.";
-            congratsBadgeEl.textContent = "21/21";
-          } else {
-            congratsMsgEl.textContent = "Bravo ✨ Objectif 7 jours atteint";
-            congratsSubEl.textContent = "Une semaine glissante complète. Continuez : ce rythme devient naturel.";
-            congratsBadgeEl.textContent = "7/7";
-          }
+          congratsMsgEl.textContent = "Bravo ✨ Objectif atteint";
+          congratsSubEl.textContent = "Votre constance change tout. Continuez : c’est en train de devenir naturel.";
+          congratsBadgeEl.textContent = `${GOAL_DAYS} jours`;
         } else {
           congratsEl.classList.remove("show");
         }
@@ -559,10 +496,11 @@
         const meta = document.createElement("div");
         meta.className = "monthMeta";
 
-        const monthCheckedCount = countInMonth(YEAR, monthIndex);
+        // Mini-compteur mois (sans "Cochés")
+        const monthCount = countInMonth(YEAR, monthIndex);
         const metaPill = document.createElement("div");
         metaPill.className = "monthMini";
-        metaPill.innerHTML = `Cochés : <strong id="mcount-${monthIndex}">${monthCheckedCount}</strong>`;
+        metaPill.innerHTML = `<strong id="mcount-${monthIndex}">${monthCount}</strong>`;
 
         const yearTxt = document.createElement("span");
         yearTxt.textContent = YEAR;
@@ -600,15 +538,15 @@
           cell.className = "day";
           cell.textContent = day;
 
-          if(checked.has(id)) cell.classList.add("checked");
+          if(marked.has(id)) cell.classList.add("marked");
 
           cell.addEventListener("click", () => {
-            if(checked.has(id)){
-              checked.delete(id);
-              cell.classList.remove("checked");
+            if(marked.has(id)){
+              marked.delete(id);
+              cell.classList.remove("marked");
             } else {
-              checked.add(id);
-              cell.classList.add("checked");
+              marked.add(id);
+              cell.classList.add("marked");
             }
             save();
 
@@ -617,7 +555,7 @@
               mcountEl.textContent = countInMonth(YEAR, monthIndex);
             }
 
-            updateRollingPanelsAndCongrats();
+            updateGoalAndCongrats();
           });
 
           daysGrid.appendChild(cell);
@@ -634,13 +572,13 @@
         for(let m=0; m<12; m++){
           calendarEl.appendChild(buildMonth(m));
         }
-        updateRollingPanelsAndCongrats();
+        updateGoalAndCongrats();
         save();
       }
 
       clearBtn.addEventListener("click", () => {
-        if(confirm("Réinitialiser toutes les cases cochées pour 2026 ?")){
-          checked.clear();
+        if(confirm("Réinitialiser toutes les journées marquées pour 2026 ?")){
+          marked.clear();
           save();
           render();
         }
@@ -651,6 +589,7 @@
   </script>
 </body>
 </html>
+
 
 
 

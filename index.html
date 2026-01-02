@@ -391,13 +391,13 @@
           <div class="starsWrap">
             <div class="stars" aria-label="Niveaux">
               <span class="star" id="star1" title="1 étoile : 7 jours">★</span>
-              <span class="star" id="star2" title="2 étoiles : 21 jours">★</span>
-              <span class="star" id="star3" title="3 étoiles : 60 jours">★</span>
-              <span class="star" id="star4" title="4 étoiles : 90 jours">★</span>
-              <span class="star" id="star5" title="5 étoiles : 180 jours">★</span>
+              <span class="star" id="star2" title="2 étoiles : 15 jours">★</span>
+              <span class="star" id="star3" title="3 étoiles : 30 jours">★</span>
+              <span class="star" id="star4" title="4 étoiles : 45 jours">★</span>
+              <span class="star" id="star5" title="5 étoiles : 60 jours">★</span>
             </div>
             <div class="starsLegend" id="starsLegend">
-              1★=7 • 2★=21 • 3★=60 • 4★=90 • 5★=180
+              1★=7 • 2★=15 • 3★=30 • 4★=45 • 5★=60
             </div>
           </div>
 
@@ -427,13 +427,13 @@
       const YEAR = 2026;
       const STORAGE_KEY = "sobriete_calendar_" + YEAR;
 
-      // Paliers étoiles basés UNIQUEMENT sur le TOTAL (pas de fenêtre 21j)
+      // Paliers étoiles basés sur le TOTAL
       const MILESTONES = [
-        { days: 7, stars: 1 },
-        { days: 21, stars: 2 },
-        { days: 60, stars: 3 },
-        { days: 90, stars: 4 },
-        { days: 180, stars: 5 },
+        { days: 7,  stars: 1 },
+        { days: 15, stars: 2 },
+        { days: 30, stars: 3 },
+        { days: 45, stars: 4 },
+        { days: 60, stars: 5 },
       ];
 
       function nextMilestone(total){
@@ -451,7 +451,7 @@
         "Janvier","Février","Mars","Avril","Mai","Juin",
         "Juillet","Août","Septembre","Octobre","Novembre","Décembre"
       ];
-      const dow = ["L","M","M","J","V","S","D"]; // Lundi -> Dimanche
+      const dow = ["L","M","M","J","V","S","D"];
 
       const marked = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"));
 
@@ -505,7 +505,7 @@
       }
 
       function updateStars(total){
-        const thresholds = [7, 21, 60, 90, 180];
+        const thresholds = MILESTONES.map(m => m.days);
         thresholds.forEach((t, i) => {
           if(total >= t) stars[i].classList.add("on");
           else stars[i].classList.remove("on");
@@ -527,16 +527,16 @@
           congratsSubEl.textContent = "7 jours au total. Une première marche solide — continuez.";
         } else if(cur.stars === 2){
           congratsMsgEl.textContent = "Magnifique ✨ 2 étoiles";
-          congratsSubEl.textContent = "21 jours au total. Votre constance devient une signature.";
+          congratsSubEl.textContent = "15 jours au total. Votre constance devient une signature.";
         } else if(cur.stars === 3){
           congratsMsgEl.textContent = "Incroyable ✨ 3 étoiles";
-          congratsSubEl.textContent = "60 jours au total. Vous installez un nouveau standard.";
+          congratsSubEl.textContent = "30 jours au total. Vous installez un nouveau standard.";
         } else if(cur.stars === 4){
           congratsMsgEl.textContent = "Exceptionnel ✨ 4 étoiles";
-          congratsSubEl.textContent = "90 jours au total. C’est une transformation profonde.";
+          congratsSubEl.textContent = "45 jours au total. C’est une transformation profonde.";
         } else {
           congratsMsgEl.textContent = "Légendaire ✨ 5 étoiles";
-          congratsSubEl.textContent = "180 jours au total. Une vraie liberté intérieure.";
+          congratsSubEl.textContent = "60 jours au total. Une vraie liberté intérieure.";
         }
       }
 
@@ -551,7 +551,6 @@
 
         const next = nextMilestone(total);
 
-        // barre: progression vers le prochain palier, et si aucun, 100%
         if(next){
           goalFillEl.style.width = clampPct(total, next.days) + "%";
           const remaining = next.days - total;
@@ -670,4 +669,3 @@
   </script>
 </body>
 </html>
-
